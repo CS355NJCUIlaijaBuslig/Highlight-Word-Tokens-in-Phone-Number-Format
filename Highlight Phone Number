@@ -1,0 +1,52 @@
+function onOpen() { //Gives out the Prompt
+  var ui = DocumentApp.getUi() // DocumentApp or FormApp.
+      ui.createMenu('Highlight Phone Number')
+      .addItem('Highlight', 'FindPhoneNumber')
+      .addItem('Unhighlight', 'Unhighlight')
+      .addToUi();
+}
+                  
+function FindPhoneNumber() { //Allows you to select a phone number,if not then the function highlights the whole document
+  var body = DocumentApp.getActiveDocument().getBody();
+  var paragraphs = body.getParagraphs();
+  var ui = DocumentApp.getUi(); // Same variations.
+  var result = ui.prompt('Let\'s get to know each other!','May I know your phone number?',ui.ButtonSet.YES_NO);
+  var button = result.getSelectedButton();
+  var text = result.getResponseText();
+  if (button == ui.Button.YES){
+    // User clicked "YES".
+    ui.alert('Your phone number is' + text + '.');
+  } else if (button == ui.Button.NO) {
+    // User clicked "No".
+    ui.alert('No phone number found.')
+    var doc = DocumentApp.getActiveDocument();
+    var body = doc.getBody()
+    var text = body.editAsText();
+    text.setForegroundColor(0, text.getText().length-1, '#FFFFFF');
+    text.setBackgroundColor(0, text.getText().length-1, '#000000');
+  } else if (button == ui.Button.CLOSE) {
+    // User clicked X in the title bar.
+    ui.alert('You closed the dialog.');
+  }
+ var highlightStyle ={};
+    highlightStyle[DocumentApp.Attribute.FOREGROUND_COLOR] = '#FFFFFF';
+    highlightStyle[DocumentApp.Attribute.BACKGROUND_COLOR] = '#000000';
+    var textLocation = {};
+    var textToHighlight = result.getResponseText();
+    var i;
+    for (i=0; i<paragraphs.length; ++i) {
+    textLocation = paragraphs[i].findText(textToHighlight);
+    if (textLocation != null && textLocation.getStartOffset() != -1) {
+      textLocation.getElement().setAttributes(textLocation.getStartOffset(),textLocation.getEndOffsetInclusive(), highlightStyle);
+    }
+}
+
+}
+
+function Unhighlight(){ //highlights the whole document to its original color
+  var doc = DocumentApp.getActiveDocument();
+  var body = doc.getBody()
+  var text = body.editAsText();
+   text.setForegroundColor(0, text.getText().length-1, '#000000');
+   text.setBackgroundColor(0, text.getText().length-1, '#FFFFFF');
+  }
